@@ -1,29 +1,29 @@
-# 📡 Smart Antenna Beam Tracker
+# Smart Antenna Beam Tracker
 
 A real-time web application to visualize antenna beam patterns interactively, built with Python Flask, NumPy, and Plotly.
 
 ---
 
-## 🔍 Overview
+##  Overview
 
 This project simulates how antenna arrays direct signals in specific directions. Users can control frequency, number of antenna elements, and steering angle to observe how the beam pattern changes in real time.
 
 ---
 
-## ✨ Features
+##  Features
 
-- 📊 Real-time beam pattern visualization using Plotly
-- 🎛️ Interactive sliders for:
+-  Real-time beam pattern visualization using Plotly
+-  Interactive sliders for:
   - Frequency (1–10 GHz)
   - Number of antenna elements (2–16)
   - Steering angle (-60° to +60°)
-- 🔄 Auto-sweep animation to simulate beam direction changes
-- ⚡ Live graph updates on parameter change
-- 🖥️ Clean and simple web interface
+-  Auto-sweep animation to simulate beam direction changes
+-  Live graph updates on parameter change
+-  Clean and simple web interface
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -34,7 +34,7 @@ This project simulates how antenna arrays direct signals in specific directions.
 
 ---
 
-## 🚀 How to Run
+##  How to Run
 
 **1. Clone the repository**
 ```
@@ -59,13 +59,13 @@ http://127.0.0.1:5000
 
 ---
 
-## 📸 Screenshot
+##  Screenshot
 
 ![App Screenshot](screenshot.png)
 
 ---
 
-## 🎓 Concepts Used
+##  Concepts Used
 
 - Antenna Array Factor (AF) calculation
 - Phase steering using steering angle
@@ -74,7 +74,7 @@ http://127.0.0.1:5000
 
 ---
 
-## 👩‍💻 Author
+##  Author
 
 **Hrucha Patil**
 - GitHub: [@PatilHrucha](https://github.com/PatilHrucha)
