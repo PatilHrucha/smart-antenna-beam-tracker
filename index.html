@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Antenna Beam Tracker</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .header p {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 3px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 25px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 20px;
+        }
+
+        .controls {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            height: fit-content;
+        }
+
+        .controls h2 {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            color: #666;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            accent-color: #1976d2;
+        }
+
+        .value-display {
+            text-align: right;
+            color: #1976d2;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-top: 4px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1565c0;
+        }
+
+        .btn-secondary {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+
+        .btn-secondary:hover {
+            background: #c8e6c9;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .chart-container h2 {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        #beamChart {
+            width: 100%;
+            height: 420px;
+        }
+
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .info-card {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        .info-card .label {
+            color: #888;
+            font-size: 0.78rem;
+        }
+
+        .info-card .value {
+            color: #1976d2;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>📡 Smart Antenna Beam Tracker</h1>
+        <p>Real-time Antenna Beam Pattern Visualization</p>
+    </div>
+
+    <div class="container">
+        <div class="controls">
+            <h2>Parameters</h2>
+
+            <div class="control-group">
+                <label>Frequency (GHz)</label>
+                <input type="range" id="frequency" min="1" max="10" value="2.4" step="0.1">
+                <div class="value-display"><span id="freqVal">2.4</span> GHz</div>
+            </div>
+
+            <div class="control-group">
+                <label>Number of Elements</label>
+                <input type="range" id="numElements" min="2" max="16" value="4" step="1">
+                <div class="value-display"><span id="elemVal">4</span></div>
+            </div>
+
+            <div class="control-group">
+                <label>Steering Angle (°)</label>
+                <input type="range" id="steeringAngle" min="-60" max="60" value="0" step="1">
+                <div class="value-display"><span id="angleVal">0</span>°</div>
+            </div>
+
+            <button class="btn btn-primary" onclick="calculateBeam()">Update Beam Pattern</button>
+            <button class="btn btn-secondary" onclick="autoSweep()">🔄 Auto Sweep</button>
+        </div>
+
+        <div class="chart-container">
+            <h2>Beam Pattern</h2>
+            <div id="beamChart"></div>
+            <div class="info-cards">
+                <div class="info-card">
+                    <div class="label">Frequency</div>
+                    <div class="value" id="infoFreq">2.4 GHz</div>
+                </div>
+                <div class="info-card">
+                    <div class="label">Elements</div>
+                    <div class="value" id="infoElem">4</div>
+                </div>
+                <div class="info-card">
+                    <div class="label">Steering Angle</div>
+                    <div class="value" id="infoAngle">0°</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('frequency').addEventListener('input', function() {
+            document.getElementById('freqVal').textContent = this.value;
+        });
+        document.getElementById('numElements').addEventListener('input', function() {
+            document.getElementById('elemVal').textContent = this.value;
+        });
+        document.getElementById('steeringAngle').addEventListener('input', function() {
+            document.getElementById('angleVal').textContent = this.value;
+        });
+
+        async function calculateBeam() {
+            const frequency = document.getElementById('frequency').value;
+            const numElements = document.getElementById('numElements').value;
+            const steeringAngle = document.getElementById('steeringAngle').value;
+
+            const response = await fetch('/calculate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ frequency, num_elements: numElements, steering_angle: steeringAngle })
+            });
+
+            const data = await response.json();
+
+            const trace = {
+                x: data.theta,
+                y: data.AF,
+                type: 'scatter',
+                mode: 'lines',
+                line: { color: '#1976d2', width: 2 }
+            };
+
+            const layout = {
+                paper_bgcolor: 'white',
+                plot_bgcolor: '#fafafa',
+                font: { color: '#333' },
+                xaxis: {
+                    title: 'Angle (degrees)',
+                    gridcolor: '#e0e0e0',
+                    range: [-90, 90]
+                },
+                yaxis: {
+                    title: 'Normalized Gain (dB)',
+                    gridcolor: '#e0e0e0',
+                    range: [-60, 5]
+                },
+                showlegend: false,
+                margin: { t: 20 }
+            };
+
+            Plotly.newPlot('beamChart', [trace], layout);
+
+            document.getElementById('infoFreq').textContent = frequency + ' GHz';
+            document.getElementById('infoElem').textContent = numElements;
+            document.getElementById('infoAngle').textContent = steeringAngle + '°';
+        }
+
+        let sweepInterval = null;
+        function autoSweep() {
+            if (sweepInterval) {
+                clearInterval(sweepInterval);
+                sweepInterval = null;
+                return;
+            }
+            let angle = -60;
+            sweepInterval = setInterval(() => {
+                document.getElementById('steeringAngle').value = angle;
+                document.getElementById('angleVal').textContent = angle;
+                calculateBeam();
+                angle += 2;
+                if (angle > 60) angle = -60;
+            }, 300);
+        }
+
+        calculateBeam();
+    </script>
+
+</body>
+</html>
